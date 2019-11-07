@@ -109,7 +109,7 @@ def find_mount(config):
 def check_mount(config, name):
     """Check if FS is already mounted"""
     container = datastore(config, name)
-    mounts = mounted()
+    mounts = mounted(config)
     return mounts.get(container, None)
 
 # UX
