@@ -19,6 +19,7 @@ Config = namedtuple('Config', ['gocryptfs',
                                'passlength',
                                'dataroot',
                                'mountpoints',
+                               'mount',
                                'umount',
                                'umountopts',])
 
@@ -58,12 +59,14 @@ def read_config(configpath):
             raw['umountopts'] = []
         else:
             raise ConfigError('Unknown system type')
+        raw['mount'] = which('mount')
         result = Config(gocryptfs=Path(raw['gocryptfs']).resolve(),
                         passroot=Path(raw['passroot']).expanduser().resolve(),
                         groupname=raw['groupname'],
                         passlength=64,
                         dataroot=Path(raw['dataroot']).expanduser().resolve(),
                         umount=Path(raw['umount']).resolve(),
+                        mount=Path(raw['mount']).resolve(),
                         umountopts=raw['umountopts'],
                         mountpoints=[Path(mnt).resolve() for mnt in raw['mountpoints']])
         return result
