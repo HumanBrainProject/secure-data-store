@@ -158,8 +158,13 @@ def mount(config, name):
         mountpoint = previous
     else:
         mountpoint = find_mount(config)
-        if not (mountpoint and mountpoint.exists()):
+        if not mountpoint:
             raise MountError("No available mountpoints.")
+        if not mountpoint.exists():
+            try:
+                mountpoint.mkdir(parents=True, exist_ok=True)
+            except:
+                raise MountError("No available mountpoints.")
         gcfs = config.gocryptfs
         try:
             sp.run([gcfs, '-passfile', passfile, container, mountpoint],
