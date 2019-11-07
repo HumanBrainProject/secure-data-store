@@ -118,7 +118,7 @@ def setup(config):
         result = sp.run([gcfs, '-version'], stdout=sp.PIPE, check=True)
     except sp.CalledProcessError:
         raise GCFSError("Could not find GoCryptFS")
-    exe, version = result.stdout.decode('ascii').split(' ')[:2]
+    exe, version = result.stdout.decode('ascii').split(';')[0].split(' ')[:2]
     major, minor, tiny = map(int, version[1:-1].split('.'))
     if exe != 'gocryptfs' or (major < 1 and minor < 7 and tiny < 1):
         raise GCFSError("GoCryptFS has insufficient version: {} {}".format(exe, version))
