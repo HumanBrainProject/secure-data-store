@@ -89,9 +89,10 @@ def get_password(config, name):
     with open(passfile, 'r') as fd:
         return fd.read()
 
-def mounted():
+def mounted(config):
     """Get active mounts"""
-    result = sp.run(['/sbin/mount'], stdout=sp.PIPE, stderr=sp.PIPE, check=True)
+    exe = config.mount
+    result = sp.run([exe], stdout=sp.PIPE, stderr=sp.PIPE, check=True)
     active = [ln.strip().decode('ascii').split(' ')
               for ln in result.stdout.split(b'\n')
               if ln.strip()]
@@ -99,7 +100,7 @@ def mounted():
 
 def find_mount(config):
     """Find first free mountpoint"""
-    mounts = mounted().values()
+    mounts = mounted(config).values()
     for mnt in config.mountpoints:
         if not mnt in mounts:
             return mnt
