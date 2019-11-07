@@ -3,13 +3,15 @@
 import click
 import secure_data_store as sds
 
+CONFIG='~/.sdsrc'
+
 @click.group()
 def main():
     """Wrapper for GoCryptFS"""
 
 @main.command()
 @click.argument('name')
-@click.option('--config', help='Path to config file', default='~/.sds/config.toml')
+@click.option('--config', help='Path to config file', default='~/.sdsrc')
 def create(name, config=None):
     """Create a new secure data container NAME."""
     try:
@@ -20,7 +22,7 @@ def create(name, config=None):
 
 @main.command()
 @click.argument('name')
-@click.option('--config', help='Path to config file', default='~/.sds/config.toml')
+@click.option('--config', help='Path to config file', default='~/.sdsrc')
 def open(name, config=None):
     """Open an existing secure data container NAME.
 
@@ -33,7 +35,7 @@ def open(name, config=None):
 
 @main.command()
 @click.argument('name')
-@click.option('--config', help='Path to config file', default='~/.sds/config.toml')
+@click.option('--config', help='Path to config file', default='~/.sdsrc')
 def close(name, config=None):
     """Close an opend data container NAME."""
     try:
