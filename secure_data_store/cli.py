@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Console script for secure_data_store."""
 import click
-import secure_data_store as sds
+from . import secure_data_store as sds
 
 CONFIG='~/.sdsrc'
 
