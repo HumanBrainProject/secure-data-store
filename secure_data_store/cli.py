@@ -1,18 +1,45 @@
 # -*- coding: utf-8 -*-
-
 """Console script for secure_data_store."""
-import sys
 import click
+import secure_data_store as sds
 
+@click.group()
+def main():
+    """Wrapper for GoCryptFS"""
 
-@click.command()
-def main(args=None):
-    """Console script for secure_data_store."""
-    click.echo("Replace this message by putting your code into "
-               "secure_data_store.cli.main")
-    click.echo("See click documentation at https://click.palletsprojects.com/")
-    return 0
+@main.command()
+@click.argument('name')
+@click.option('--config', help='Path to config file', default='~/.sds/config.toml')
+def create(name, config=None):
+    """Create a new secure data container NAME."""
+    try:
+        config = sds.read_config(config)
+        sds.create(config, name)
+    except (sds.ContainerError, sds.GCFSError, FileExistsError, sds.ConfigError) as err:
+        print(err)
 
+@main.command()
+@click.argument('name')
+@click.option('--config', help='Path to config file', default='~/.sds/config.toml')
+def open(name, config=None):
+    """Open an existing secure data container NAME.
 
-if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    Will print path to the opened, clear-text container."""
+    try:
+        config = sds.read_config(config)
+        sds.mount(config, name)
+    except (sds.ContainerError, sds.GCFSError, sds.ConfigError, sds.MountError) as err:
+        print(err)
+
+@main.command()
+@click.argument('name')
+@click.option('--config', help='Path to config file', default='~/.sds/config.toml')
+def close(name, config=None):
+    """Close an opend data container NAME."""
+    try:
+        config = sds.read_config(config)
+        sds.unmount(config, name)
+    except (sds.ContainerError, sds.GCFSError, sds.ConfigError) as err:
+        print(err)
+
+main()
