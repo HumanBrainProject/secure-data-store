@@ -7,8 +7,10 @@ from pathlib import Path
 import string
 import random
 from collections import namedtuple
+from shutil import chown, which
+from platform import system
+
 import toml
-from shutil import chown
 
 # Config data class
 Config = namedtuple('Config', ['gocryptfs',
@@ -47,12 +49,21 @@ def read_config(configpath):
     try:
         configpath = Path(configpath).expanduser().resolve()
         raw = toml.load(configpath)
+        raw['gocryptfs'] = which('gocryptfs')
+        if system() == 'Linux':
+            raw['umount'] = which('fusermount')
+            raw['umountopts'] = ['-u']
+        elif system() == 'Darwin':
+            raw['umount'] = which('umount')
+            raw['umountopts'] = []
+        else:
+            raise ConfigError('Unknown system type')
         result = Config(gocryptfs=Path(raw['gocryptfs']).resolve(),
                         passroot=Path(raw['passroot']).expanduser().resolve(),
                         groupname=raw['groupname'],
-                        passlength=raw['passlength'],
+                        passlength=64,
                         dataroot=Path(raw['dataroot']).expanduser().resolve(),
-                        umount=Path(ra=['umount']).resolve(),
+                        umount=Path(raw['umount']).resolve(),
                         umountopts=raw['umountopts'],
                         mountpoints=[Path(mnt).resolve() for mnt in raw['mountpoints']])
         return result
@@ -117,7 +128,7 @@ def setup(config):
     try:
         result = sp.run([gcfs, '-version'], stdout=sp.PIPE, check=True)
     except sp.CalledProcessError:
-        raise GCFSError("Could not find GoCryptFS")
+        raise GCFSError("Could not find GoCryptFS. Maybe load module?")
     exe, version = result.stdout.decode('ascii').split(';')[0].split(' ')[:2]
     major, minor, tiny = map(int, version[1:-1].split('.'))
     if exe != 'gocryptfs' or (major < 1 and minor < 7 and tiny < 1):
