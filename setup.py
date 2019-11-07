@@ -35,7 +35,7 @@ setup(
     description="Convenience around GoCryptFS",
     entry_points={
         'console_scripts': [
-            'secure_data_store=secure_data_store.cli:main',
+            'sds=secure_data_store.cli:main',
         ],
     },
     install_requires=requirements,
