@@ -49,7 +49,6 @@ Usage
 
 Configuration
 -------------
-
 All configuration is handled via a single file (defaults to `$HOME/.sdsrc`) in
 TOML syntax.
 
@@ -63,8 +62,9 @@ TOML syntax.
   # Path to your encrypted data sets
   dataroot  = "/gpfs/project/sds/containers"
   # Path to password files
-  # !!! Must reside in a different filesystem than `dataroot`
-  # !!! Ensure that the path upto `passroot` has rxw permision for your group
+  # This should be identical for all members of a group.
+  # Ensure that the path is accessible (rx) for all members and writeable for
+  # all member intended to create datasets (rxw).
   passroot  = "~groupleader/.sds/passfiles"
   # List of mountpoints to use
   # Piz Daint
@@ -72,6 +72,9 @@ TOML syntax.
   #  * add as many as you like
   mountpoints = ["/tmp/sds/00", "/tmp/sds/01", "/tmp/sds/02"]
   # ##############################################################################
+
+Please ensure that `dataroot` and `passroot` reside on different filesystems for
+minimal isolation.
 
 Credits
 -------
