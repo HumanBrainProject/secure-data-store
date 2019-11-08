@@ -6,10 +6,23 @@ This project wraps GoCryptFS into an easily accessible CLI interface aimed at
 data storage encrypted at-rest for scientific use. Passwords are stored inside a
 file that is readable by a UNIX group specified at creation of the filesystem.
 
-Usage example:
+Installation
+------------
+.. code:: bash
+   # Assuming you run on HPC systems, bring Python and GoCryptFS into scope
+   # This is for Piz Daint
+   module load cray-python/3.6.5.7 gocryptfs
+   python -mvenv sds
+   pip install git+http://github.com/HumanBrainProject/secure-data-store#egg=secure-data-store
 
+Usage
+-----
 .. code:: bash
 
+   # Assuming you run on HPC systems, bring Python and GoCryptFS into scope
+   # This is for Piz Daint
+   module load cray-python/3.6.5.7 gocryptfs
+   source sds/bin/activate
    # Create filesystem, at first use, this will also setup the tool's workspace.
    # Data inside a filesystem is encrypted, unless mounted as below.
    # Each container has a random password, stored in a directory only readable
@@ -41,19 +54,10 @@ TOML syntax. Example
   # !!! Must reside in a different filesystem than `dataroot`
   # !!! Ensure that the path upto `passroot` has rxw permision for your group
   passroot  = "~groupleader/.sds/passfiles"
-
-  # Site configuration ###########################################################
-  # Site specific configuration, do not change!
-
-  # Length of random password
-  passlength  = 64
-  # Path to gocryptfs binary
-  gocryptfs   = "/path/to/gocryptfs"
-  # Which umount to use
-  umount      = "/user/bin/fusermount"
-  # Options, if any, to pass
-  umountopts  = ['-u']
-  # List of available mountpoints
+  # List of mountpoints to use 
+  # Piz Daint
+  #  * must be under `/tmp`
+  #  * add as many as you like
   mountpoints = ["/tmp/sds/00", "/tmp/sds/01", "/tmp/sds/02"]
   # ##############################################################################
 
