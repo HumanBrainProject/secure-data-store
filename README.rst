@@ -1,6 +1,6 @@
-=================
+=================================================
 Secure Data Store -- Convenience around GoCryptFS
-=================
+=================================================
 
 This project wraps GoCryptFS into an easily accessible CLI interface aimed at
 data storage encrypted at-rest for scientific use. Passwords are stored inside a
@@ -13,8 +13,14 @@ Installation
    # Assuming you run on HPC systems, bring Python and GoCryptFS into scope
    # This is for Piz Daint
    module load cray-python/3.6.5.7 gocryptfs
+   # Create virtual environment
    python -mvenv sds
+   # Enter virtual environment
+   source sds/bin/activate
+   # Install package
    pip install git+http://github.com/HumanBrainProject/secure-data-store#egg=secure-data-store
+   # Leave virtual environment
+   deactivate
 
 Usage
 -----
@@ -23,6 +29,7 @@ Usage
    # Assuming you run on HPC systems, bring Python and GoCryptFS into scope
    # This is for Piz Daint
    module load cray-python/3.6.5.7 gocryptfs
+   # Enter virtual environment
    source sds/bin/activate
    # Create filesystem, at first use, this will also setup the tool's workspace.
    # Data inside a filesystem is encrypted, unless mounted as below.
@@ -37,10 +44,14 @@ Usage
    # ...
    # Unmount filesystem
    sds close my-container
+   # Leave virtual environment
+   deactivate
 
+Configuration
+-------------
 
 All configuration is handled via a single file (defaults to `$HOME/.sdsrc`) in
-TOML syntax. Example
+TOML syntax.
 
 .. code:: bash
 
