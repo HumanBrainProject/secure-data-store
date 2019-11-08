@@ -45,14 +45,6 @@ TOML syntax. Example
   # Site configuration ###########################################################
   # Site specific configuration, do not change!
 
-  # Length of random password
-  passlength  = 64
-  # Path to gocryptfs binary
-  gocryptfs   = "/path/to/gocryptfs"
-  # Which umount to use
-  umount      = "/user/bin/fusermount"
-  # Options, if any, to pass
-  umountopts  = ['-u']
   # List of available mountpoints
   mountpoints = ["/tmp/sds/00", "/tmp/sds/01", "/tmp/sds/02"]
   # ##############################################################################
