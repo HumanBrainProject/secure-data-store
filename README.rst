@@ -9,6 +9,7 @@ file that is readable by a UNIX group specified at creation of the filesystem.
 Installation
 ------------
 .. code:: bash
+
    # Assuming you run on HPC systems, bring Python and GoCryptFS into scope
    # This is for Piz Daint
    module load cray-python/3.6.5.7 gocryptfs
