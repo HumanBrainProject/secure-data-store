@@ -13,7 +13,8 @@ Usage example:
    # Create filesystem, at first use, this will also setup the tool's workspace.
    # Data inside a filesystem is encrypted, unless mounted as below.
    # Each container has a random password, stored in a directory only readable
-   # by your UNIX group
+   # by your UNIX group. This will also print the masterkey, which you should
+   # stored (physically) in a secure location.
    sds create my-container
    # Open filesystem (mount) at one of a list of predefined locations.
    # Subsequent open operations will return the same mountpoint.
@@ -32,6 +33,10 @@ TOML syntax. Example
 
   # User configuration ###########################################################
   # This can -- and should -- be changed by users
+
+  # GocryptFS binaries, see section on installation.
+  gocryptfs      = "~/go/src/github.com/rfjakob/gocryptfs/gocryptfs"
+  gocryptfs_xray = "~/go/src/github.com/rfjakob/gocryptfs/gocryptfs-xray/gocryptfs-xray"
 
   # Unix group associated with your project
   groupname = "******"
@@ -56,7 +61,7 @@ TOML syntax. Example
   # List of available mountpoints
   mountpoints = ["/tmp/sds/00", "/tmp/sds/01", "/tmp/sds/02"]
   # ##############################################################################
-
+  
 Credits
 -------
 
