@@ -48,7 +48,7 @@ def passstore(config, name):
     return config.passroot / name
 
 def get_path(s):
-    return Path(expandvars(s)).expanduser().resolve(),
+    return Path(expandvars(s)).expanduser().resolve()
 
 def read_config(configpath):
     """Read config from path"""
