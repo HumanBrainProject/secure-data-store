@@ -9,10 +9,10 @@ file that is readable by a UNIX group specified at creation of the filesystem.
 Installation
 ------------
 .. code:: bash
-
-   # Assuming you run on HPC systems, bring Python and GoCryptFS into scope
-   # This is for Piz Daint
-   module load cray-python/3.6.5.7 gocryptfs
+   # Have go > 1.11 in your PATH (from https://github.com/rfjakob/gocryptfs)
+   go get -d github.com/rfjakob/gocryptfs
+   cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
+   ./build.bash	  
    # Create virtual environment
    python -mvenv sds
    # Enter virtual environment
@@ -34,7 +34,8 @@ Usage
    # Create filesystem, at first use, this will also setup the tool's workspace.
    # Data inside a filesystem is encrypted, unless mounted as below.
    # Each container has a random password, stored in a directory only readable
-   # by your UNIX group
+   # by your UNIX group. This will also print the masterkey, which you should
+   # stored (physically) in a secure location.
    sds create my-container
    # Open filesystem (mount) at one of a list of predefined locations.
    # Subsequent open operations will return the same mountpoint.
@@ -56,6 +57,10 @@ TOML syntax.
 
   # User configuration ###########################################################
   # This can -- and should -- be changed by users
+
+  # GocryptFS binaries, see section on installation.
+  gocryptfs      = "~/go/src/github.com/rfjakob/gocryptfs/gocryptfs"
+  gocryptfs_xray = "~/go/src/github.com/rfjakob/gocryptfs/gocryptfs-xray/gocryptfs-xray"
 
   # Unix group associated with your project
   groupname = "******"

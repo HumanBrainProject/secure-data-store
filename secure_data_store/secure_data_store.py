@@ -9,11 +9,13 @@ import random
 from collections import namedtuple
 from shutil import chown, which
 from platform import system
+from os.path import expandvars
 
 import toml
 
 # Config data class
 Config = namedtuple('Config', ['gocryptfs',
+                               'gocryptfs_xray',
                                'passroot',
                                'groupname',
                                'passlength',
@@ -45,12 +47,14 @@ def passstore(config, name):
     """Get password file"""
     return config.passroot / name
 
+def get_path(s):
+    return Path(expandvars(s)).expanduser().resolve(),
+
 def read_config(configpath):
     """Read config from path"""
     try:
-        configpath = Path(configpath).expanduser().resolve()
+        configpath = get_path(configpath)
         raw = toml.load(configpath)
-        raw['gocryptfs'] = which('gocryptfs')
         if system() == 'Linux':
             raw['umount'] = which('fusermount')
             raw['umountopts'] = ['-u']
@@ -60,18 +64,19 @@ def read_config(configpath):
         else:
             raise ConfigError('Unknown system type')
         raw['mount'] = which('mount')
-        result = Config(gocryptfs=Path(raw['gocryptfs']).resolve(),
-                        passroot=Path(raw['passroot']).expanduser().resolve(),
+        result = Config(gocryptfs=get_path(raw['gocryptfs']),
+                        gocryptfs_xray=get_path(raw['gocryptfs_xray']),
+                        passroot=get_path(raw['passroot']),
                         groupname=raw['groupname'],
                         passlength=64,
-                        dataroot=Path(raw['dataroot']).expanduser().resolve(),
-                        umount=Path(raw['umount']).resolve(),
-                        mount=Path(raw['mount']).resolve(),
+                        dataroot=get_path(raw['dataroot']),
+                        umount=get_path(raw['umount']),
+                        mount=get_path(raw['mount']),
                         umountopts=raw['umountopts'],
-                        mountpoints=[Path(mnt).resolve() for mnt in raw['mountpoints']])
+                        mountpoints=[get_path(mnt) for mnt in raw['mountpoints']])
         return result
     except (TypeError, toml.TomlDecodeError, IOError) as err:
-        raise ConfigError("Could not parse config: {}".format(err))
+        raise ConfigError("Could not parse config file {}: {}".format(configpath, err))
 
 def set_password(config, name):
     """Store random password to disk"""
@@ -135,9 +140,10 @@ def setup(config):
         raise GCFSError("Could not find GoCryptFS. Maybe load module?")
     try:
         exe, version = result.stdout.decode('ascii').split(';')[0].split(' ')[:2]
+        version = version.split('-')[0]
         major, minor, tiny = map(int, version[1:].split('.'))
     except:
-        raise GCFSError("GoCryptFS could not determine GoCryptFS version")
+        raise GCFSError("GoCryptFS could not determine GoCryptFS version, executable is {}, version {}".format(gcfs, version))
     if exe != 'gocryptfs' or (major < 1 and minor < 7 and tiny < 1):
         raise GCFSError("GoCryptFS has insufficient version: {} {}".format(exe, version))
 
@@ -156,19 +162,24 @@ def create(config, name):
         raise ContainerError("Container already present: {}".format(name))
     set_password(config, name)
     passfile = passstore(config, name)
-    gcfs = config.gocryptfs
-    cmd = "{} -passfile {} -init {}".format(gcfs, passfile, container)
     try:
-        result = sp.run(cmd,
+        gcfs = config.gocryptfs
+        result = sp.run([gcfs, '-passfile', passfile, '-init', container],
                         check=True,
-                        shell=True,
-                        stdout=sp.PIPE)
-        print(result.stdout)
-    except sp.CalledProcessError as e:
-        print("FAILED command", cmd)
-        print(e.stdout)
-        print(e.stderr)
+                        stdout=sp.DEVNULL)
+        print("Created container in", container)
+    except sp.CalledProcessError:
         raise GCFSError("Could not create container.")
+    try:
+        xray = config.gocryptfs_xray
+        proc = sp.run('cat {} | {} -dumpmasterkey {}'.format(passfile, xray,  container / 'gocryptfs.conf'),
+                      check=True,
+                      shell=True,
+                      stdout=sp.PIPE)
+        mkey = proc.stdout
+        print("This is your master key:", mkey.decode('ascii').strip())
+    except Exception as e:
+        print("Could not extract master key, you can still use the container, but no recovery possible.")
 
 def mount(config, name):
     """Open (mount) an existing container"""
