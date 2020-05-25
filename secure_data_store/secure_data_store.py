@@ -157,11 +157,17 @@ def create(config, name):
     set_password(config, name)
     passfile = passstore(config, name)
     gcfs = config.gocryptfs
+    cmd = "{} -passfile {} -init {}".format(gcfs, passfile, container)
     try:
-        result = sp.run([gcfs, '-passfile', passfile, '-init', container],
+        result = sp.run(cmd,
                         check=True,
-                        stdout=sp.DEVNULL)
-    except sp.CalledProcessError:
+                        shell=True,
+                        stdout=sp.PIPE)
+        print(result.stdout)
+    except sp.CalledProcessError as e:
+        print("FAILED command", cmd)
+        print(e.stdout)
+        print(e.stderr)
         raise GCFSError("Could not create container.")
 
 def mount(config, name):
